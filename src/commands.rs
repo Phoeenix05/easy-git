@@ -5,7 +5,7 @@ pub use clap::{Args, Parser, Subcommand};
 #[derive(Parser, Debug)]
 pub struct CliArgs {
     #[command(subcommand)]
-    commands: Commands,
+    pub command: Commands,
 }
 
 #[derive(Debug, Subcommand)]
@@ -29,8 +29,7 @@ pub trait Command {
 #[derive(Debug, Args)]
 pub struct Pull {
     /// Branch to pull changes from. Default value is the current active branch
-    #[arg(short, long)]
-    branch: Option<String>,
+    pub branch: Option<String>,
 }
 
 impl Command for Pull {
@@ -41,9 +40,8 @@ impl Command for Pull {
 
 #[derive(Debug, Args)]
 pub struct Commit {
-    /// Messagee that is shown with the commit
-    #[arg(short, long)]
-    message: Option<String>,
+    /// Message that is shown with the commit
+    pub message: Option<String>,
 }
 
 impl Command for Commit {
@@ -56,7 +54,7 @@ impl Command for Commit {
 pub struct Push {
     /// Branch name local commits are going to be pushed to. Default value is the current active branch
     #[arg(short, long)]
-    branch: Option<String>,
+    pub branch: Option<String>,
 }
 
 impl Command for Push {
@@ -68,11 +66,11 @@ impl Command for Push {
 #[derive(Debug, Args)]
 pub struct Tag {
     #[command(subcommand)]
-    commands: Option<TagCommands>,
+    pub command: Option<TagCommands>,
 
     /// Name for the new tag
     #[arg(short, long)]
-    tag_name: String,
+    pub tag_name: String,
 }
 
 impl Command for Tag {

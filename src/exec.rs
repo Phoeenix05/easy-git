@@ -7,5 +7,8 @@ where
 {
     let process = Command::new(cmd).args(args).stdout(std::process::Stdio::piped()).spawn().unwrap();
     let output = process.wait_with_output().await.unwrap();
-    Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    let output = String::from_utf8_lossy(&output.stdout).to_string();
+    println!("{}", output);
+
+    Ok(output)
 }

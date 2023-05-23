@@ -1,6 +1,9 @@
 use anyhow::Result;
 
 pub use clap::{Args, Parser, Subcommand};
+use inquire::{Confirm, Text};
+use crate::exec::exec_command;
+use crate::util::current_branch;
 
 #[derive(Parser, Debug)]
 pub struct CliArgs {
@@ -22,8 +25,9 @@ pub enum Commands {
     Undo(Undo),
 }
 
+#[async_trait::async_trait]
 pub trait Command {
-    fn run(&self) -> Result<()>;
+    async fn run(&self) -> Result<()>;
 }
 
 #[derive(Debug, Args)]
@@ -32,9 +36,14 @@ pub struct Pull {
     pub branch: Option<String>,
 }
 
+#[async_trait::async_trait]
 impl Command for Pull {
-    fn run(&self) -> Result<()> {
-        todo!()
+    async fn run(&self) -> Result<()> {
+        let current_branch = current_branch().await.unwrap();
+        let branch = self.branch.clone().unwrap_or(current_branch);
+        exec_command("git", ["pull", "origin", branch.as_str()]).await.unwrap();
+
+        Ok(())
     }
 }
 
@@ -44,9 +53,26 @@ pub struct Commit {
     pub message: Option<String>,
 }
 
+#[async_trait::async_trait]
 impl Command for Commit {
-    fn run(&self) -> Result<()> {
-        todo!()
+    async fn run(&self) -> Result<()> {
+        exec_command("git", ["add", "."]).await.unwrap();
+
+        let message = self.message.clone().unwrap_or("commit".to_owned());
+        exec_command("git", ["commit", "-m", message.as_str()]).await.unwrap();
+
+        let current_branch = current_branch().await.unwrap();
+        let push = Confirm::new("Do you want to push changes to remote origin?").prompt().unwrap();
+        if push {
+            let branch = Text::new("Please enter the branch name you want to push to.")
+                    .with_initial_value(current_branch.as_str())
+                    .prompt()
+                    .unwrap();
+
+            exec_command("git", ["push", "origin", branch.as_str()]).await.unwrap();
+        }
+
+        Ok(())
     }
 }
 
@@ -57,9 +83,15 @@ pub struct Push {
     pub branch: Option<String>,
 }
 
+#[async_trait::async_trait]
 impl Command for Push {
-    fn run(&self) -> Result<()> {
-        todo!()
+    async fn run(&self) -> Result<()> {
+        let current_branch = current_branch().await.unwrap();
+        let branch = self.branch.clone().unwrap_or(current_branch);
+
+        exec_command("git", ["push", "origin", branch.as_str()]).await.unwrap();
+
+        Ok(())
     }
 }
 
@@ -73,8 +105,9 @@ pub struct Tag {
     pub tag_name: String,
 }
 
+#[async_trait::async_trait]
 impl Command for Tag {
-    fn run(&self) -> Result<()> {
+    async fn run(&self) -> Result<()> {
         todo!()
     }
 }
@@ -88,8 +121,9 @@ pub enum TagCommands {
 #[derive(Debug, Args)]
 pub struct DeleteTag {}
 
+#[async_trait::async_trait]
 impl Command for DeleteTag {
-    fn run(&self) -> Result<()> {
+    async fn run(&self) -> Result<()> {
         todo!()
     }
 }
@@ -97,8 +131,9 @@ impl Command for DeleteTag {
 #[derive(Debug, Args)]
 pub struct UpdateTag {}
 
+#[async_trait::async_trait]
 impl Command for UpdateTag {
-    fn run(&self) -> Result<()> {
+    async fn run(&self) -> Result<()> {
         todo!()
     }
 }
@@ -106,8 +141,11 @@ impl Command for UpdateTag {
 #[derive(Debug, Args)]
 pub struct Undo {}
 
+#[async_trait::async_trait]
 impl Command for Undo {
-    fn run(&self) -> Result<()> {
-        todo!()
+    async fn run(&self) -> Result<()> {
+        exec_command("git", ["reset", "--soft", "HEAD^"]).await.unwrap();
+
+        Ok(())
     }
 }

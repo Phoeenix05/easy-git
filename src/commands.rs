@@ -18,6 +18,8 @@ pub enum Commands {
     Push(Push),
     /// Creates a new tag
     Tag(Tag),
+    /// Undos the last commit
+    Undo(Undo),
 }
 
 pub trait Command {
@@ -98,6 +100,15 @@ impl Command for DeleteTag {
 pub struct UpdateTag {}
 
 impl Command for UpdateTag {
+    fn run(&self) -> Result<()> {
+        todo!()
+    }
+}
+
+#[derive(Debug, Args)]
+pub struct Undo {}
+
+impl Command for Undo {
     fn run(&self) -> Result<()> {
         todo!()
     }

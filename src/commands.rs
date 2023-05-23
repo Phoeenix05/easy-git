@@ -4,6 +4,7 @@ pub use clap::{Args, Parser, Subcommand};
 use inquire::{Confirm, Text};
 use crate::exec::exec_command;
 use crate::util::current_branch;
+use crate::version::*;
 
 #[derive(Parser, Debug)]
 pub struct CliArgs {
@@ -23,6 +24,11 @@ pub enum Commands {
     Tag(Tag),
     /// Undos the last commit
     Undo(Undo),
+    /// Overrides the actual git command by setting an alias
+    /// and changes the actual git command with an alias to <ggit>
+    OverrideGit(OverrideGit),
+    /// Project version
+    Version(Version),
 }
 
 #[async_trait::async_trait]
@@ -146,6 +152,17 @@ impl Command for Undo {
     async fn run(&self) -> Result<()> {
         exec_command("git", ["reset", "--soft", "HEAD^"], false).await.unwrap();
 
+        Ok(())
+    }
+}
+
+#[derive(Debug, Args)]
+pub struct OverrideGit {}
+
+#[async_trait::async_trait]
+impl Command for OverrideGit {
+    async fn run(&self) -> Result<()> {
+        // exec_command(cmd, args, out)
         Ok(())
     }
 }

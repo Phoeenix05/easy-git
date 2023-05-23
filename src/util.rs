@@ -3,6 +3,6 @@ use anyhow::Result;
 
 /// Gets the current active branch
 pub async fn current_branch() -> Result<String> {
-    let branch = exec_command("git", ["branch", "--show-current"]).await?;
+    let branch = exec_command("git", ["branch", "--show-current"], false).await?;
     Ok(branch.trim().to_owned())
 }

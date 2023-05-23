@@ -41,7 +41,7 @@ impl Command for Pull {
     async fn run(&self) -> Result<()> {
         let current_branch = current_branch().await.unwrap();
         let branch = self.branch.clone().unwrap_or(current_branch);
-        exec_command("git", ["pull", "origin", branch.as_str()]).await.unwrap();
+        exec_command("git", ["pull", "origin", branch.as_str()], true).await.unwrap();
 
         Ok(())
     }
@@ -56,10 +56,10 @@ pub struct Commit {
 #[async_trait::async_trait]
 impl Command for Commit {
     async fn run(&self) -> Result<()> {
-        exec_command("git", ["add", "."]).await.unwrap();
+        exec_command("git", ["add", "."], false).await.unwrap();
 
         let message = self.message.clone().unwrap_or("commit".to_owned());
-        exec_command("git", ["commit", "-m", message.as_str()]).await.unwrap();
+        exec_command("git", ["commit", "-m", message.as_str()], true).await.unwrap();
 
         let current_branch = current_branch().await.unwrap();
         let push = Confirm::new("Do you want to push changes to remote origin?").prompt().unwrap();
@@ -69,7 +69,7 @@ impl Command for Commit {
                     .prompt()
                     .unwrap();
 
-            exec_command("git", ["push", "origin", branch.as_str()]).await.unwrap();
+            exec_command("git", ["push", "origin", branch.as_str()], true).await.unwrap();
         }
 
         Ok(())
@@ -89,7 +89,7 @@ impl Command for Push {
         let current_branch = current_branch().await.unwrap();
         let branch = self.branch.clone().unwrap_or(current_branch);
 
-        exec_command("git", ["push", "origin", branch.as_str()]).await.unwrap();
+        exec_command("git", ["push", "origin", branch.as_str()], true).await.unwrap();
 
         Ok(())
     }
@@ -144,7 +144,7 @@ pub struct Undo {}
 #[async_trait::async_trait]
 impl Command for Undo {
     async fn run(&self) -> Result<()> {
-        exec_command("git", ["reset", "--soft", "HEAD^"]).await.unwrap();
+        exec_command("git", ["reset", "--soft", "HEAD^"], false).await.unwrap();
 
         Ok(())
     }

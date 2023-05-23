@@ -3,6 +3,8 @@ mod exec;
 mod util;
 use commands::*;
 
+use inquire::{Confirm, Text};
+
 #[tokio::main]
 async fn main() {
     let args = CliArgs::parse();
@@ -18,10 +20,22 @@ async fn main() {
         Commands::Commit(cmd) => {
             let output = exec::exec_command("git", ["add", "."]).await.unwrap();
             println!("{}", output);
-            
+
             let message = cmd.message.unwrap_or("commit".to_owned());
             let output = exec::exec_command("git", ["commit", "-m", message.as_str()]).await.unwrap();
             println!("{}", output);
+
+            let current_branch = util::current_branch().await.unwrap();
+            let push = Confirm::new("Do you want to push changes to remote origin?").prompt().unwrap();
+            if push {
+                let branch = Text::new("Please enter the branch name you want to push to.")
+                    .with_initial_value(current_branch.as_str())
+                    .prompt()
+                    .unwrap();
+
+                let output = exec::exec_command("git", ["push", "origin", branch.as_str()]).await.unwrap();
+                println!("{}", output);
+            }
         },
         Commands::Push(cmd) => {
             let current_branch = util::current_branch().await.unwrap();

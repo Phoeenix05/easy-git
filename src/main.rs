@@ -1,13 +1,12 @@
 mod commands;
 mod exec;
-use commands::*;
+mod util;
 
 #[tokio::main]
 async fn main() {
     // let output = exec::exec_command("git", vec!["pull", "--help"])
-    //     .await
-    //     .unwrap();
-    // println!("{}", output);
+    let output = util::current_branch().await.unwrap();
+    println!("{}", output);
 
-    let _args = CliArgs::parse();
+    // let _args = commands::CliArgs::parse();
 }

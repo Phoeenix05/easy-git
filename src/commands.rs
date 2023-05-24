@@ -1,7 +1,6 @@
 use anyhow::Result;
 
 pub use clap::{Args, Parser, Subcommand};
-use inquire::{Confirm, Text};
 use crate::exec::exec_command;
 use crate::util::current_branch;
 use crate::version::*;
@@ -16,7 +15,7 @@ pub struct CliArgs {
 pub enum Commands {
     /// Pulls the latest changes from remote origin
     Pull(Pull),
-    /// Commits local changes
+    /// Commits changes
     Commit(Commit),
     /// Pushes all unpushed local commits to remote origin
     Push(Push),
@@ -45,9 +44,9 @@ pub struct Pull {
 #[async_trait::async_trait]
 impl Command for Pull {
     async fn run(&self) -> Result<()> {
-        let current_branch = current_branch().await.unwrap();
+        let current_branch = current_branch().await?;
         let branch = self.branch.clone().unwrap_or(current_branch);
-        exec_command("git", ["pull", "origin", branch.as_str()], true).await.unwrap();
+        exec_command("git", ["pull", "origin", branch.as_str()]).await?;
 
         Ok(())
     }
@@ -56,26 +55,22 @@ impl Command for Pull {
 #[derive(Debug, Args)]
 pub struct Commit {
     /// Message that is shown with the commit
-    pub message: Option<String>,
+    pub message: String,
+    /// Push commit to remote origin/<current_branch>
+    #[arg(short, long)]
+    pub push: bool,
 }
 
 #[async_trait::async_trait]
 impl Command for Commit {
     async fn run(&self) -> Result<()> {
-        exec_command("git", ["add", "."], false).await.unwrap();
+        dbg!(self);
+        exec_command("git", ["add", "."]).await?;
+        exec_command("git", ["commit", "-m", self.message.clone().as_str()]).await?;
 
-        let message = self.message.clone().unwrap_or("commit".to_owned());
-        exec_command("git", ["commit", "-m", message.as_str()], true).await.unwrap();
-
-        let current_branch = current_branch().await.unwrap();
-        let push = Confirm::new("Do you want to push changes to remote origin?").prompt().unwrap();
-        if push {
-            let branch = Text::new("Please enter the branch name you want to push to.")
-                    .with_initial_value(current_branch.as_str())
-                    .prompt()
-                    .unwrap();
-
-            exec_command("git", ["push", "origin", branch.as_str()], true).await.unwrap();
+        if self.push {
+            let current_branch = current_branch().await?;
+            exec_command("git", ["push", "origin", current_branch.as_str()]).await?;
         }
 
         Ok(())
@@ -92,10 +87,10 @@ pub struct Push {
 #[async_trait::async_trait]
 impl Command for Push {
     async fn run(&self) -> Result<()> {
-        let current_branch = current_branch().await.unwrap();
+        let current_branch = current_branch().await?;
         let branch = self.branch.clone().unwrap_or(current_branch);
 
-        exec_command("git", ["push", "origin", branch.as_str()], true).await.unwrap();
+        exec_command("git", ["push", "origin", branch.as_str()]).await?;
 
         Ok(())
     }
@@ -150,7 +145,7 @@ pub struct Undo {}
 #[async_trait::async_trait]
 impl Command for Undo {
     async fn run(&self) -> Result<()> {
-        exec_command("git", ["reset", "--soft", "HEAD^"], false).await.unwrap();
+        exec_command("git", ["reset", "--soft", "HEAD^"]).await?;
 
         Ok(())
     }
@@ -162,7 +157,6 @@ pub struct OverrideGit {}
 #[async_trait::async_trait]
 impl Command for OverrideGit {
     async fn run(&self) -> Result<()> {
-        // exec_command(cmd, args, out)
-        Ok(())
+        todo!()
     }
 }

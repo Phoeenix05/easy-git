@@ -4,7 +4,7 @@ use anyhow::Result;
 pub use clap::Args;
 
 #[derive(Debug, Args)]
-pub struct Version {}
+pub struct Version;
 
 #[async_trait::async_trait]
 impl Command for Version {

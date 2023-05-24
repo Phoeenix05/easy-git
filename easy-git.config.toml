@@ -1,2 +1,5 @@
+[version_tag]
+match_project = true
+
 [commit]
 auto_push = true

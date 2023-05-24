@@ -2,7 +2,13 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Config {
+    pub version_tag: VersionConfig,
     pub commit: CommitConfig,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+pub struct VersionConfig {
+    pub match_project: bool,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]

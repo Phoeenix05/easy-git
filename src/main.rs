@@ -11,19 +11,23 @@ use config::Config;
 async fn main() -> anyhow::Result<()> {
     let config = match Config::from_file("./easy-git.config.toml") {
         Ok(config) => config,
-        Err(_) => Config::default(),
+        Err(err) => {
+            eprintln!("{}", err);
+            Config::default()
+        },
     };
 
     let args = CliArgs::parse();
 
-    let _err = match args.command {
+    let _ = match args.command {
         Commands::Pull(cmd) => cmd.run(config).await?,
         Commands::Commit(cmd) => cmd.run(config).await?,
         Commands::Push(cmd) => cmd.run(config).await?,
-        Commands::Tag(cmd) => cmd.run(config).await?,
+        // Commands::Tag(cmd) => cmd.run(config).await?,
         Commands::Undo(cmd) => cmd.run(config).await?,
         Commands::OverrideGit(cmd) => cmd.run(config).await?,
         Commands::Version(cmd) => cmd.run(config).await?,
+        _ => (),
     };
 
     Ok(())

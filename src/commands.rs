@@ -94,9 +94,6 @@ impl Command for Push {
 
 #[derive(Debug, Args)]
 pub struct Tag {
-    #[command(subcommand)]
-    pub command: Option<TagCommands>,
-
     /// Name for the new tag
     #[arg(short, long)]
     pub tag_name: String,
@@ -104,45 +101,14 @@ pub struct Tag {
 
 #[async_trait::async_trait]
 impl Command for Tag {
-    async fn run(&self, _: Config) -> anyhow::Result<()> {
-        todo!()
-    }
-}
+    async fn run(&self, config: Config) -> anyhow::Result<()> {
+        if !config.version_tag.match_project {
+            return Ok(())
+        }
 
-#[derive(Debug, Subcommand)]
-pub enum TagCommands {
-    Delete(DeleteTag),
-    Update(UpdateTag),
-    List(ListTags),
-}
+        // exec_command("git", ["tag", "-a", "<version>", "-m", "'version <version>'"]).await?;
 
-#[derive(Debug, Args)]
-pub struct DeleteTag {}
-
-#[async_trait::async_trait]
-impl Command for DeleteTag {
-    async fn run(&self, _: Config) -> anyhow::Result<()> {
-        todo!()
-    }
-}
-
-#[derive(Debug, Args)]
-pub struct UpdateTag {}
-
-#[async_trait::async_trait]
-impl Command for UpdateTag {
-    async fn run(&self, _: Config) -> anyhow::Result<()> {
-        todo!()
-    }
-}
-
-#[derive(Debug, Args)]
-pub struct ListTags;
-
-#[async_trait::async_trait]
-impl Command for ListTags {
-    async fn run(&self, _: Config) -> anyhow::Result<()> {
-        todo!()
+        Ok(())
     }
 }
 

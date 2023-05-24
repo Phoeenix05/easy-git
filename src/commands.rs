@@ -56,18 +56,15 @@ impl Command for Pull {
 pub struct Commit {
     /// Message that is shown with the commit
     pub message: String,
-    /// Push commit to remote origin/<current_branch>
-    #[arg(short, long)]
-    pub push: bool,
 }
 
 #[async_trait::async_trait]
 impl Command for Commit {
-    async fn run(&self, _: Config) -> anyhow::Result<()> {
+    async fn run(&self, config: Config) -> anyhow::Result<()> {
         exec_command("git", ["add", "."]).await?;
         exec_command("git", ["commit", "-m", self.message.clone().as_str()]).await?;
 
-        if self.push {
+        if config.commit.auto_push {
             let current_branch = current_branch().await?;
             exec_command("git", ["push", "origin", current_branch.as_str()]).await?;
         }

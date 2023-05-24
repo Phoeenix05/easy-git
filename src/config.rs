@@ -2,12 +2,12 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Config {
-    commit: CommitConfig,
+    pub commit: CommitConfig,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct CommitConfig {
-    auto_push: bool,
+    pub auto_push: bool,
 }
 
 impl Config {

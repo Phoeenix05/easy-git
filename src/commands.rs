@@ -1,6 +1,6 @@
-use anyhow::Result;
-
 pub use clap::{Args, Parser, Subcommand};
+
+use crate::config::Config;
 use crate::exec::exec_command;
 use crate::util::current_branch;
 use crate::version::*;
@@ -32,7 +32,7 @@ pub enum Commands {
 
 #[async_trait::async_trait]
 pub trait Command {
-    async fn run(&self) -> Result<()>;
+    async fn run(&self, config: Config) -> anyhow::Result<()>;
 }
 
 #[derive(Debug, Args)]
@@ -43,7 +43,7 @@ pub struct Pull {
 
 #[async_trait::async_trait]
 impl Command for Pull {
-    async fn run(&self) -> Result<()> {
+    async fn run(&self, _: Config) -> anyhow::Result<()> {
         let current_branch = current_branch().await?;
         let branch = self.branch.clone().unwrap_or(current_branch);
         exec_command("git", ["pull", "origin", branch.as_str()]).await?;
@@ -63,7 +63,7 @@ pub struct Commit {
 
 #[async_trait::async_trait]
 impl Command for Commit {
-    async fn run(&self) -> Result<()> {
+    async fn run(&self, _: Config) -> anyhow::Result<()> {
         exec_command("git", ["add", "."]).await?;
         exec_command("git", ["commit", "-m", self.message.clone().as_str()]).await?;
 
@@ -85,7 +85,7 @@ pub struct Push {
 
 #[async_trait::async_trait]
 impl Command for Push {
-    async fn run(&self) -> Result<()> {
+    async fn run(&self, _: Config) -> anyhow::Result<()> {
         let current_branch = current_branch().await?;
         let branch = self.branch.clone().unwrap_or(current_branch);
 
@@ -107,7 +107,7 @@ pub struct Tag {
 
 #[async_trait::async_trait]
 impl Command for Tag {
-    async fn run(&self) -> Result<()> {
+    async fn run(&self, _: Config) -> anyhow::Result<()> {
         todo!()
     }
 }
@@ -124,7 +124,7 @@ pub struct DeleteTag {}
 
 #[async_trait::async_trait]
 impl Command for DeleteTag {
-    async fn run(&self) -> Result<()> {
+    async fn run(&self, _: Config) -> anyhow::Result<()> {
         todo!()
     }
 }
@@ -134,7 +134,7 @@ pub struct UpdateTag {}
 
 #[async_trait::async_trait]
 impl Command for UpdateTag {
-    async fn run(&self) -> Result<()> {
+    async fn run(&self, _: Config) -> anyhow::Result<()> {
         todo!()
     }
 }
@@ -144,7 +144,7 @@ pub struct ListTags;
 
 #[async_trait::async_trait]
 impl Command for ListTags {
-    async fn run(&self) -> Result<()> {
+    async fn run(&self, _: Config) -> anyhow::Result<()> {
         todo!()
     }
 }
@@ -154,7 +154,7 @@ pub struct Undo {}
 
 #[async_trait::async_trait]
 impl Command for Undo {
-    async fn run(&self) -> Result<()> {
+    async fn run(&self, _: Config) -> anyhow::Result<()> {
         exec_command("git", ["reset", "--soft", "HEAD^"]).await?;
 
         Ok(())
@@ -166,7 +166,7 @@ pub struct OverrideGit {}
 
 #[async_trait::async_trait]
 impl Command for OverrideGit {
-    async fn run(&self) -> Result<()> {
+    async fn run(&self, _: Config) -> anyhow::Result<()> {
         todo!()
     }
 }

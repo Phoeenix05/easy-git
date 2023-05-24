@@ -1,8 +1,9 @@
 use crate::exec::exec_command;
-use anyhow::Result;
 
 /// Gets the current active branch
-pub async fn current_branch() -> Result<String> {
-    let branch = exec_command("git", ["branch", "--show-current"]).await?.stdout();
+pub async fn current_branch() -> anyhow::Result<String> {
+    let branch = exec_command("git", ["branch", "--show-current"])
+        .await?
+        .stdout();
     Ok(branch.trim().to_owned())
 }

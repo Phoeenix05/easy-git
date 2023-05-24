@@ -4,11 +4,9 @@ use tokio::process::Command;
 pub struct Output(String);
 
 impl Output {
-//    pub fn stdin(&self) { todo!() }
     pub fn stdout(&self) -> String {
         self.0.clone()
     }
-//    pub fn stderr(&self) { todo!() }
 }
 
 pub async fn exec_command<'a, I>(cmd: &str, args: I) -> Result<Output>

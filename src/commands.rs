@@ -64,7 +64,6 @@ pub struct Commit {
 #[async_trait::async_trait]
 impl Command for Commit {
     async fn run(&self) -> Result<()> {
-        dbg!(self);
         exec_command("git", ["add", "."]).await?;
         exec_command("git", ["commit", "-m", self.message.clone().as_str()]).await?;
 
@@ -117,6 +116,7 @@ impl Command for Tag {
 pub enum TagCommands {
     Delete(DeleteTag),
     Update(UpdateTag),
+    List(ListTags),
 }
 
 #[derive(Debug, Args)]
@@ -134,6 +134,16 @@ pub struct UpdateTag {}
 
 #[async_trait::async_trait]
 impl Command for UpdateTag {
+    async fn run(&self) -> Result<()> {
+        todo!()
+    }
+}
+
+#[derive(Debug, Args)]
+pub struct ListTags;
+
+#[async_trait::async_trait]
+impl Command for ListTags {
     async fn run(&self) -> Result<()> {
         todo!()
     }
